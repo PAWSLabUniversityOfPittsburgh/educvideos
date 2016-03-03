@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="edu.pitt.sis.exp.educvideos.entities.Bookmark" table="BOOKMARK">
+        <id name="id" type="int">
+            <column name="ID" precision="5" scale="0" />
+            <generator class="native" />
+        </id>
+        <many-to-one name="video" class="edu.pitt.sis.exp.educvideos.entities.Video" lazy="false" fetch="select">
+            <column name="VIDEO_ID" not-null="false" />
+        </many-to-one>
+        <property name="query" type="string">
+            <column name="QUERY" length="50" not-null="true" />
+        </property>
+        <many-to-one name="author" class="edu.pitt.sis.exp.educvideos.entities.User" lazy="false" fetch="select">
+            <column name="AUTHOR" not-null="false" />
+        </many-to-one>
+        <property name="notes" type="string">
+            <column name="NOTES" length="1000" not-null="false" />
+        </property>
+    </class>
+</hibernate-mapping>

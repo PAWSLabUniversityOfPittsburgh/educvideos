@@ -1,0 +1,12 @@
+@CHARSET "ISO-8859-1";
+#slider12c .slider-track-high {
+	background: cyan;
+}
+
+#slider12c .slider-track-low {
+	background: cyan;
+}
+
+#slider12c .slider-selection {
+	background: blue;
+}

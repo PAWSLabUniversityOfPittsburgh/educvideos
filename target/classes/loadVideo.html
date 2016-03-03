@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="ISO-8859-1">
+	<title>Video</title>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+</head>
+<body>
+	<!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
+    <div id="player"></div>
+    
+    <script type="text/javascript">
+	var url = {
+		videoid : "",
+		sub : "",
+		usr : "",
+		grp : "",
+		sid : ""
+	};
+	
+	//segment object to iterate through each segment and send an update to UM and DB
+	function segment(id, start, end) {
+			this.id = id;
+			this.start = start;
+			this.end = end;
+	}
+	
+	//Get the parameters from the URL
+	function getSearchParameters() {
+	      var prmstr = window.location.search.substr(1);
+	      return prmstr != null && prmstr != "" ? transformToAssocArray(prmstr) : {};
+	}
+	
+	function transformToAssocArray( prmstr ) {
+	    var prmarr = prmstr.split("&");
+	    for ( var i = 0; i < prmarr.length; i++) {
+	        var tmparr = prmarr[i].split("=");
+	        switch(tmparr[0]){
+	        case "videoid" : url["videoid"] = tmparr[1];
+	        				break;
+	        case "sub" : url["sub"] = tmparr[1];
+	        			break;
+	        case "usr" : url["usr"] = tmparr[1];
+	        			break;
+	        case "grp" : url["grp"] = tmparr[1];
+	        			break;
+	        case "sid" : url["sid"] = tmparr[1];
+	        			break;
+	        }
+	    }
+	    if(url["videoid"] == "" || url["sub"] == ""){
+	    	document.getElementById("player").innerHTML = "URL is invalid";
+	    }
+	    else {
+	    	//send POST request to the server
+	    	$.ajax({
+	    		url: "rest/user/video",
+	    		type: 'POST',
+	    		data: JSON.stringify(url),
+				dataType: 'json',
+				contentType: "application/json",
+	    		async: 'true',
+	    		crossDomain: true,
+	    		success: function(data) {
+	    			validUser = data.validUser;
+	    			video_id = url["videoid"];
+	    			youtube_id = data.youtubeId;
+	    			segment_id = url["sub"];
+	    			user_id = url["usr"];
+	    			grp_id = url["grp"];
+	    			session_id = url["sid"];
+	    			cue_start = data.startTime;
+	    			cue_end = data.endTime;
+	    			start = 0;
+	    			end = 0;
+	    			res = "0";
+	    			segmentArray = [];
+	    			for(var i=0; i<data.segments.length; i++){
+	    				var s = new segment(data.segments[i].id, data.segments[i].start, data.segments[i].end);
+	    				segmentArray.push(s);
+	    			}
+	    			onSuccess();
+	    		},
+	    		error: function(data) {
+	    			document.getElementById("player").innerHTML = "Video requested does not exist";
+	    		}
+	    	});
+	    }
+	}
+	getSearchParameters();
+	
+	function onSuccess() {
+		// 2. This code loads the IFrame Player API code asynchronously.
+	    tag = document.createElement('script');
+	    tag.src = "https://www.youtube.com/iframe_api";
+	    firstScriptTag = document.getElementsByTagName('script')[0];
+	    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+	}
+	
+ 	// 3. This function creates an <iframe> (and YouTube player)
+    //    after the API code downloads.
+    var player;
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('player', {
+        height: '390',
+        width: '640',
+        videoId: youtube_id,
+		  //end: '5',
+		  rel:0,
+        events: {
+          'onReady': onPlayerReady,
+          'onStateChange': onPlayerStateChange,
+          'onError': onError //check if this works
+        }
+      });
+    }
+    
+ 	// 4. The API will call this function when the video player is ready.
+    function onPlayerReady(event) {
+      event.target.seekTo(cue_start);
+      event.target.playVideo();
+    }
+	
+ 	// 5. The API calls this function when the player's state changes.
+    //    The function indicates that when playing a video (state=1),
+    //    the player should play for six seconds and then stop.
+	var timeWatched = 0;
+ 	var lastTimeWatched = 0; //used to check if the user dragged the seekbar while the video was playing
+ 	var seek = false;
+	  
+    function onPlayerStateChange(event) {
+		if(validUser){
+			if (event.data == YT.PlayerState.PLAYING) {
+	    	  	// start the timer to keep track of how much video is watched
+				timer = setInterval(function(){ myTimer() }, 1000);
+				start = parseFloat(player.getCurrentTime().toFixed(2));
+				lastTimeWatched = player.getCurrentTime();
+			}
+			else if(event.data == YT.PlayerState.PAUSED || event.data == YT.PlayerState.ENDED) {
+				clearInterval(timer);
+				if(seek)
+					end = parseFloat(lastTimeWatched.toFixed(2));
+				else
+					end = parseFloat(player.getCurrentTime().toFixed(2));
+				console.log("paused");
+				//check if the difference in timeWatched and user watched time is not more than 2 - this is the difference in timer and the positions of start and stop
+				//else the user has dragged the video
+				//problem - if user has watched considerable portion of the video and suddenly dragged, the whole computation would be discarded
+				if((end-start)-timeWatched<=2 && timeWatched-(end-start)<=2) {
+					//because of the asynchronous action in sending updates to UM and DB, timeWatched gets cleared before all the updates are sent.
+					//for each segment
+					for(var i=0; i<segmentArray.length; i++){
+						//replaced all cue_start by segmentArray[i].start, cue_end by segmentArray[i].end, segment_id by segmentArray[i].id
+						//check if the video watched was within the segment
+						if((segmentArray[i].start<=start && start<=segmentArray[i].end) || (segmentArray[i].start<=end && end<=segmentArray[i].end)){
+							//case 1: when the user watched completely within the segment
+							if((segmentArray[i].start<=start && start<=segmentArray[i].end) && (segmentArray[i].start<=end && end<=segmentArray[i].end)){
+								res = ((end-start)/(segmentArray[i].end-segmentArray[i].start)).toFixed(2);
+								//make sure the res sent to the server always lies between 0 and 1
+								if(res>=0 && res<=1){
+									//save in user modelling where length is length of the segment
+									var url = "http://adapt2.sis.pitt.edu/cbum/um?app=40&act="+video_id+"&sub="+segmentArray[i].id
+									+"&usr="+user_id+"&grp="+grp_id+"&sid="+session_id+"&res="+res+"&svc=length:"+(segmentArray[i].end-segmentArray[i].start)+";start:"+Math.round(start)+";end:"+Math.round(end);
+									$.ajax({
+										url: url,
+										type: 'POST',
+										dataType: 'jsonp',
+										async: 'true',
+										contentType: "application/json",
+										crossDomain: true
+									});
+									//save in local database
+									$.ajax({
+										url: "rest/user/saveActivity",
+										type: 'POST',
+										data: JSON.stringify({"user_id":user_id, "grp_id":grp_id, "video_id":video_id, "segment_id":segmentArray[i].id,"res":res,"time_watched":timeWatched,"start_time":Math.round(start),"end_time":Math.round(end)}),
+										dataType: 'json',
+										async: 'true',
+										contentType: "application/json",
+										crossDomain: true,
+										success: function() {
+											//console.log("Saved User Activity successfully");	//TODO handle in a better way
+										},
+										error: function() {
+											//console.log("Something went wrong in saving the userActivity");	//TODO handle this in a better way
+										}
+									});
+								}
+							}
+							//case 2: when user watched from within the segment and continued watching out of the segment
+							else if(segmentArray[i].start<=start && start<=segmentArray[i].end){
+								res = ((segmentArray[i].end-start)/(segmentArray[i].end-segmentArray[i].start)).toFixed(2);
+								//make sure the res sent to the server always lies between 0 and 1
+								if(res>=0 && res<=1){
+									//save in user modelling
+									var url = "http://adapt2.sis.pitt.edu/cbum/um?app=40&act="+video_id+"&sub="+segmentArray[i].id
+									+"&usr="+user_id+"&grp="+grp_id+"&sid="+session_id+"&res="+res+"&svc=length:"+(segmentArray[i].end-segmentArray[i].start)+";start:"+Math.round(start)+";end:"+Math.round(segmentArray[i].end);
+									$.ajax({
+										url: url,
+										type: 'POST',
+										dataType: 'jsonp',
+										async: 'true',
+										contentType: "application/json",
+										crossDomain: true
+									});
+									//save in local database
+									$.ajax({
+										url: "rest/user/saveActivity",
+										type: 'POST',
+										data: JSON.stringify({"user_id":user_id, "grp_id":grp_id, "video_id":video_id, "segment_id":segmentArray[i].id,"res":res,"time_watched":Math.round(segmentArray[i].end-start),"start_time":Math.round(start),"end_time":Math.round(segmentArray[i].end)}),
+										dataType: 'json',
+										async: 'true',
+										contentType: "application/json",
+										crossDomain: true,
+										success: function() {
+											//console.log("Saved User Activity successfully");	//TODO handle in a better way
+										},
+										error: function() {
+											//console.log("Something went wrong in saving the userActivity");	//TODO handle this in a better way
+										}
+									});
+								}
+							}
+							//case 3: when user watched from before the segment and continued watching within the segment
+							else{
+								res = ((end-segmentArray[i].start)/(segmentArray[i].end-segmentArray[i].start)).toFixed(2);
+								//make sure the res sent to the server always lies between 0 and 1
+								if(res>=0 && res<=1){
+									//save in user modelling
+									var url = "http://adapt2.sis.pitt.edu/cbum/um?app=40&act="+video_id+"&sub="+segmentArray[i].id
+									+"&usr="+user_id+"&grp="+grp_id+"&sid="+session_id+"&res="+res+"&svc=length:"+(segmentArray[i].end-segmentArray[i].start)+";start:"+Math.round(segmentArray[i].start)+";end:"+Math.round(end);
+									$.ajax({
+										url: url,
+										type: 'POST',
+										dataType: 'jsonp',
+										async: 'true',
+										contentType: "application/json",
+										crossDomain: true
+									});
+									//save in local database
+									$.ajax({
+										url: "rest/user/saveActivity",
+										type: 'POST',
+										data: JSON.stringify({"user_id":user_id, "grp_id":grp_id, "video_id":video_id, "segment_id":segmentArray[i].id,"res":res,"time_watched":Math.round(end-segmentArray[i].start),"start_time":Math.round(segmentArray[i].start),"end_time":Math.round(end)}),
+										dataType: 'json',
+										async: 'true',
+										contentType: "application/json",
+										crossDomain: true,
+										success: function() {
+											//console.log("Saved User Activity successfully");	//TODO handle in a better way
+										},
+										error: function() {
+											//console.log("Something went wrong in saving the userActivity");	//TODO handle this in a better way
+										}
+									});
+								}
+							}
+						}
+					}
+				}
+				//reset the timeWatched, lastTimeWatched, seek variables when the timer is reset
+				timeWatched = 0;
+				lastTimeWatched = 0;
+				seek = false;
+			}
+		}
+    }
+	
+	function onError(event) {
+		//console.log("error in loading video");
+	}
+	  
+	function myTimer(){
+		timeWatched++;
+		//check if the current time of the video is the expected end of video
+		if(parseFloat(player.getCurrentTime().toFixed(0)) == cue_end){
+			player.pauseVideo();
+		}
+		console.log("last: "+lastTimeWatched);
+		console.log("current time: "+player.getCurrentTime());
+		//this is used to pause the video when the user drags the video while playing.
+		//Pausing the video would then send an update to the servers for the video watched until before drag event.
+		if(lastTimeWatched-player.getCurrentTime()>2 || player.getCurrentTime()-lastTimeWatched>2){
+			seek = true;
+			player.pauseVideo();
+			console.log("seeking");
+		}
+		else{
+			lastTimeWatched = player.getCurrentTime();
+		}
+	}
+
+    </script>
+</body>
+</html>

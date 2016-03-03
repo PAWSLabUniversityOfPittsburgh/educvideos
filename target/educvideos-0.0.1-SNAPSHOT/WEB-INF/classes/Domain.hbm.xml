@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="edu.pitt.sis.exp.educvideos.entities.Domain" table="DOMAIN">
+        <id name="id" type="int">
+            <column name="ID" precision="5" scale="0" />
+            <generator class="native" />
+        </id>
+        <property name="name" type="string">
+            <column name="NAME" length="50" not-null="true" />
+        </property>
+        <property name="title" type="string">
+            <column name="TITLE" length="50" not-null="true" />
+        </property>
+        <property name="description" type="string">
+            <column name="DESCRIPTION" length="1000" not-null="false" />
+        </property>
+        <many-to-one name="author" class="edu.pitt.sis.exp.educvideos.entities.User" lazy="false" fetch="select">
+            <column name="AUTHOR" not-null="true" />
+        </many-to-one>
+        <property name="license" type="string">
+            <column name="LICENSE" length="50" not-null="false" />
+        </property>
+        <property name="version" type="string">
+            <column name="VERSION" length="50" not-null="false" />
+        </property>
+        <property name="created" type="timestamp">
+            <column name="CREATED" not-null="false" />
+        </property>
+        <property name="modified" type="timestamp">
+            <column name="MODIFIED" not-null="false" />
+        </property>
+        <set name="topics" table="TOPIC" inverse="true" lazy="true" fetch="select">
+            <key>
+                <column name="DOMAIN_ID" not-null="true" />
+            </key>
+            <one-to-many class="edu.pitt.sis.exp.educvideos.entities.Topic" />
+        </set>
+    </class>
+</hibernate-mapping>

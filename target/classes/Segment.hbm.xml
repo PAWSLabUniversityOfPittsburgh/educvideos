@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="edu.pitt.sis.exp.educvideos.entities.Segment" table="SEGMENT">
+        <id name="id" type="int">
+            <column name="ID" precision="5" scale="0" />
+            <generator class="native" />
+        </id>
+        <property name="name" type="string">
+            <column name="NAME" length="50" not-null="true" />
+        </property>
+        <property name="title" type="string">
+            <column name="TITLE" length="50" not-null="true" />
+        </property>
+        <many-to-one name="video" class="edu.pitt.sis.exp.educvideos.entities.Video" lazy="false" fetch="select">
+            <column name="VIDEO_ID" not-null="true" />
+        </many-to-one>
+        <property name="startTime" type="int">
+            <column name="START_TIME" length="20" not-null="true" />
+        </property>
+        <property name="endTime" type="int">
+            <column name="END_TIME" length="20" not-null="true" />
+        </property>
+        <many-to-one name="topic" class="edu.pitt.sis.exp.educvideos.entities.Topic" lazy="false" fetch="select">
+            <column name="TOPIC_ID" not-null="true" />
+        </many-to-one>
+        <property name="description" type="string">
+            <column name="DESCRIPTION" length="1000" not-null="true" />
+        </property>
+        <many-to-one name="author" class="edu.pitt.sis.exp.educvideos.entities.User" fetch="select">
+            <column name="AUTHOR" not-null="true" />
+        </many-to-one>
+        <property name="version" type="string">
+            <column name="VERSION" length="50" not-null="true" />
+        </property>
+        <property name="created" type="timestamp">
+            <column name="CREATED" not-null="true" />
+        </property>
+        <property name="modified" type="timestamp">
+            <column name="MODIFIED" not-null="true" />
+        </property>
+        <property name="url" type="string">
+            <column name="URL" length="50" not-null="true" />
+        </property>
+        <set name="userActivities" table="USER_ACTIVITY" cascade="save-update" lazy="true" fetch="select">
+            <key>
+                <column name="SEGMENT_ID" not-null="true" />
+            </key>
+            <one-to-many class="edu.pitt.sis.exp.educvideos.entities.UserActivity" />
+        </set>
+    </class>
+</hibernate-mapping>

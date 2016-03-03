@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="edu.pitt.sis.exp.educvideos.entities.Video" table="VIDEO">
+        <id name="id" type="int">
+            <column name="ID" precision="5" scale="0" />
+            <generator class="native" />
+        </id>
+        <property name="name" type="string">
+            <column name="NAME" length="50" not-null="false" />
+        </property>
+        <property name="title" type="string">
+            <column name="TITLE" length="1000" not-null="true" />
+        </property>
+        <property name="youtubeId" type="string">
+            <column name="YOUTUBE_ID" length="50" not-null="true" />
+        </property>
+        <set name="bookmarks" table="BOOKMARK" cascade="save-update" lazy="true" fetch="select">
+            <key>
+                <column name="ID" not-null="true" />
+            </key>
+            <one-to-many class="edu.pitt.sis.exp.educvideos.entities.Bookmark" />
+        </set>
+        <set name="segments" table="SEGMENT" cascade="save-update" lazy="true" fetch="select">
+            <key>
+                <column name="VIDEO_ID" not-null="true" />
+            </key>
+            <one-to-many class="edu.pitt.sis.exp.educvideos.entities.Segment" />
+        </set>
+    </class>
+</hibernate-mapping>

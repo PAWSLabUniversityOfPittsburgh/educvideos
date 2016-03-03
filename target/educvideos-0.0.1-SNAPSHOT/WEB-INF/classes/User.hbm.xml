@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="edu.pitt.sis.exp.educvideos.entities.User" table="USER">
+        <id name="id" type="int">
+            <column name="ID" precision="5" scale="0" />
+            <generator class="native" />
+        </id>
+        <property name="username" type="string">
+            <column name="USERNAME" length="50" not-null="true" />
+        </property>
+        <property name="password" type="string">
+            <column name="PASSWORD" length="50" not-null="true" />
+        </property>
+        <property name="email" type="string">
+            <column name="EMAIL" length="50" not-null="true" />
+        </property>
+        <set name="domains" table="DOMAIN" cascade="save-update" lazy="true" fetch="select">
+            <key>
+                <column name="AUTHOR" not-null="false" />
+            </key>
+            <one-to-many class="edu.pitt.sis.exp.educvideos.entities.Domain" />
+        </set>
+        <set name="segments" table="SEGMENT" cascade="save-update" lazy="true" fetch="select">
+            <key>
+                <column name="AUTHOR" not-null="false" />
+            </key>
+            <one-to-many class="edu.pitt.sis.exp.educvideos.entities.Segment" />
+        </set>
+        <set name="bookmarks" table="BOOKMARK" cascade="save-update" lazy="true" fetch="select">
+            <key>
+                <column name="AUTHOR" not-null="false" />
+            </key>
+            <one-to-many class="edu.pitt.sis.exp.educvideos.entities.Bookmark" />
+        </set>
+    </class>
+</hibernate-mapping>

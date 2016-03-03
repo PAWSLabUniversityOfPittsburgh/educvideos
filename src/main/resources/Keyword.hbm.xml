@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="edu.pitt.sis.exp.educvideos.entities.Keyword" table="KEYWORD">
+        <id name="id" type="int">
+            <column name="ID" precision="5" scale="0" />
+            <generator class="native" />
+        </id>
+        <property name="entity" type="string">
+            <column name="ENTITY" length="50" not-null="true" />
+        </property>
+        <property name="entityId" type="int">
+            <column name="ENTITY_ID" length="20" not-null="true" />
+        </property>
+        <property name="keyword" type="string">
+            <column name="KEYWORD" length="50" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>

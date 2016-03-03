@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="edu.pitt.sis.exp.educvideos.entities.UserActivity" table="USER_ACTIVITY">
+        <id name="id" type="int">
+            <column name="ID" precision="5" scale="0" />
+            <generator class="native" />
+        </id>
+        <property name="userId" type="string">
+            <column name="USER_ID" length="50" not-null="true" />
+        </property>
+        <property name="groupId" type="string">
+            <column name="GROUP_ID" length="50" not-null="true" />
+        </property>
+        <many-to-one name="segment" class="edu.pitt.sis.exp.educvideos.entities.Segment" fetch="select">
+            <column name="SEGMENT_ID" not-null="false" />
+        </many-to-one>
+        <property name="progress" type="float">
+            <column name="PROGRESS" length="50" not-null="true" />
+        </property>
+        <property name="attempts" type="int">
+            <column name="ATTEMPTS" length="20" not-null="true" />
+        </property>
+        <property name="timeSpent" type="int">
+            <column name="TIME_SPENT" length="20" not-null="true" />
+        </property>
+        <property name="startToEndTime" type="string">
+            <column name="START_TO_END_TIME" length="1000" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>

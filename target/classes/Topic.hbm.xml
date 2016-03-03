@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="edu.pitt.sis.exp.educvideos.entities.Topic" table="TOPIC">
+        <id name="id" type="int">
+            <column name="ID" precision="5" scale="0" />
+            <generator class="native" />
+        </id>
+        <property name="title" type="string">
+            <column name="TITLE" length="50" not-null="true" />
+        </property>
+        <many-to-one name="domain" class="edu.pitt.sis.exp.educvideos.entities.Domain" lazy="false" fetch="select">
+            <column name="DOMAIN_ID" not-null="true" />
+        </many-to-one>
+        <property name="description" type="string">
+            <column name="DESCRIPTION" length="50" not-null="true" />
+        </property>
+        <set name="segments" table="SEGMENT" cascade="save-update, delete" lazy="true" fetch="select">
+            <key>
+                <column name="TOPIC_ID" not-null="true" />
+            </key>
+            <one-to-many class="edu.pitt.sis.exp.educvideos.entities.Segment" />
+        </set>
+    </class>
+</hibernate-mapping>
