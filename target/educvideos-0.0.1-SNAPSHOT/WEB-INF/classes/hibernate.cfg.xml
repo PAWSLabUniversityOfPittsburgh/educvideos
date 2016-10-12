@@ -7,9 +7,11 @@
     	<!-- connection settings -->
     	<property name="hibernate.bytecode.use_reflection_optimizer">false</property>
         <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
-        <property name="hibernate.connection.url">jdbc:mysql://localhost/educvideos</property>
-        <property name="hibernate.connection.username">root</property>
-        <!-- <property name="hibernate.connection.password"></property> -->
+		<!-- enter database credentials -->
+        <property name="hibernate.connection.url">jdbc:mysql://localhost/{schema_name}</property>
+        <property name="hibernate.connection.username">{username}</property>
+        <property name="hibernate.connection.password">{password}</property>
+		<!-- end of database credentials -->
         <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
         <property name="show_sql">true</property>
         

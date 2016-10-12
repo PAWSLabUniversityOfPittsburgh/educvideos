@@ -27,7 +27,8 @@ public class UserActivityDao {
 			Criteria cr = session.createCriteria(UserActivity.class);
 			cr.add(Restrictions.eq("userId", userId));
 			cr.createAlias("segment", "s").add(Restrictions.in("s.name", content_list));
-			cr.add(Restrictions.in("s.video.name", video_list));
+			cr.createAlias("s.video", "v");
+			cr.add(Restrictions.in("v.name", video_list));
 			
 			List<UserActivity> userActivityList = cr.list();
 			
