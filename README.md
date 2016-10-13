@@ -29,10 +29,10 @@ This application contains 3 different parts:
 
 
 ### Build and Deploy   
-Make sure all the credentials are updated. Build the project as follows:
-Using Eclipse:
-Right click on pom.xml > Run As > Maven build > Type `clean install` in Goals. Check the boxes for 'Update Snapshots', 'Debug Output', 'Skip Tests' > Click 'Run'. All the required jars will be downloaded. You will find educvideos-X.X.X-SNAPSHOT.war in ${project-base-directory}/target/
-Use this war to deploy in Tomcat6.
-Using CLI:
-Go to project base directory. Type `$ mvn clean install` in the terminal. You will find educvideos-X.X.X-SNAPSHOT.war in ${project-base-directory}/target/
+* Make sure all the credentials are updated. Build the project as follows:
+* Using Eclipse:  
+Right click on pom.xml > Run As > Maven build > Type `clean install` in Goals. Check the boxes for 'Update Snapshots', 'Debug Output', 'Skip Tests' > Click 'Run'. All the required jars will be downloaded. You will find educvideos-X.X.X-SNAPSHOT.war in `${project-base-directory}/target/`  
+Use this war to deploy in Tomcat6.  
+* Using CLI:  
+Go to project base directory. Type `$ mvn clean install` in the terminal. You will find educvideos-X.X.X-SNAPSHOT.war in `${project-base-directory}/target/`  
 Use this war to deploy in Tomcat6.
