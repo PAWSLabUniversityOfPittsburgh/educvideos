@@ -26,3 +26,13 @@ This application contains 3 different parts:
 * **Video Authoring** - Video Authoring uses Servlets + JSP, and Hibernate. It helps the authors create video segments using the YouTube Search API.
 * **Video Tracking** - Video Tracking uses RESTful API + JavaScript, and Hibernate. It tracks the portion of video segments watched by a user. This data is saved in local MySql database, as well as sent to the Aggregator for User Modelling, through AJAX requests.
 * **Content Brokering** - Content Brokering uses RESTful API and Hibernate. It is a web service that offers the details of the latest video content created by authors using the Video Authoring tool, in order to be registered for User Modelling.
+
+
+### Build and Deploy   
+Make sure all the credentials are updated. Build the project as follows:
+Using Eclipse:
+Right click on pom.xml > Run As > Maven build > Type `clean install` in Goals. Check the boxes for 'Update Snapshots', 'Debug Output', 'Skip Tests' > Click 'Run'. All the required jars will be downloaded. You will find educvideos-X.X.X-SNAPSHOT.war in ${project-base-directory}/target/
+Use this war to deploy in Tomcat6.
+Using CLI:
+Go to project base directory. Type `$ mvn clean install` in the terminal. You will find educvideos-X.X.X-SNAPSHOT.war in ${project-base-directory}/target/
+Use this war to deploy in Tomcat6.
