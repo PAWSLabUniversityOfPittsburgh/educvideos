@@ -19,8 +19,9 @@ import edu.pitt.sis.exp.educvideos.videotracking.utils.Solution;
 public class UserActivityDao {
 
 	public List<UserActivity> getAllUserActivity(String userId, List<String> video_list, List<String> content_list) throws Exception {
+		Session session = null;
 		try {
-			Session session = HibernateUtil.getSessionFactory().openSession();
+			session = HibernateUtil.getSessionFactory().openSession();
 			
 			session.beginTransaction();
 			
@@ -39,6 +40,10 @@ public class UserActivityDao {
 		catch(Exception ex) {
 			ex.printStackTrace();
 			throw ex;
+		}
+		finally {
+			if(session!=null)
+				session.close();
 		}
 	}
 	

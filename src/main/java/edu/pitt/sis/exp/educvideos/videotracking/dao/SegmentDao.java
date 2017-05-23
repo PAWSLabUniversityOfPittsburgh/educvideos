@@ -14,8 +14,9 @@ import edu.pitt.sis.exp.educvideos.utils.HibernateUtil;
 public class SegmentDao {
 
 	public List<Object[]> getVideo(String videoName, Integer segmentName) throws Exception {
+		Session session = null;
 		try{
-			Session session = HibernateUtil.getSessionFactory().openSession();
+			session = HibernateUtil.getSessionFactory().openSession();
 			
 			session.beginTransaction();
 			
@@ -31,11 +32,16 @@ public class SegmentDao {
 			ex.printStackTrace();
 			throw ex;
 		}
+		finally {
+			if(session!=null)
+				session.close();
+		}
 	}
 	
 	public List<SegmentModel> getSegments(String videoName) throws Exception {
+		Session session = null;
 		try{
-			Session session = HibernateUtil.getSessionFactory().openSession();
+			session = HibernateUtil.getSessionFactory().openSession();
 			
 			session.beginTransaction();
 			
@@ -55,6 +61,10 @@ public class SegmentDao {
 		catch(Exception ex){
 			ex.printStackTrace();
 			throw ex;
+		}
+		finally {
+			if(session!=null)
+				session.close();
 		}
 	}
 }
